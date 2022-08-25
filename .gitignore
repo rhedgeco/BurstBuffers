@@ -1,0 +1,9 @@
+# ignore everything
+*
+
+# whitelist assets directory
+!Assets/
+!Assets/**
+
+# whitelist readme
+!README.md
