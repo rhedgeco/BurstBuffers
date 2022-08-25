@@ -14,3 +14,11 @@ To be passed into burst compiled methods we gotta get just a little **DANGEROUS*
 The `NativeBox<T>` base class exposes the data as an reference using `.GetUnsafeRef()`. This returns a `ref` struct of the underlying data. While this can be used to pass around the data without needing `unsafe`, it should be done sparingly and should usually only be for sending the data into a burst compiled methods.
 
 The `ref` is literally just a pointer converted to a ref, and can still produce undefined behaviour if the source data is disposed of. So be careful.
+
+## Installation
+Go to the [latest release](https://github.com/rhedgeco/BurstBuffers/releases/latest).
+
+Download and import the `.unitypackage` into your project.
+
+## License
+[MIT](LICENSE.md)
