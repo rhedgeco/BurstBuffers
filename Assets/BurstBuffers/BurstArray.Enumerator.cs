@@ -1,6 +1,6 @@
 namespace BurstBuffers
 {
-    public unsafe partial struct BurstArray<T> : INativeResource where T : unmanaged
+    public unsafe partial struct BurstArray<T> where T : unmanaged
     {
         public Enumerator GetEnumerator()
         {
@@ -56,7 +56,7 @@ namespace BurstBuffers
                 _buffer = buffer;
                 _maxLength = buffer->Length;
                 _currentIndex = -1;
-                _currentItem = (long) _buffer->_pointer;
+                _currentItem = (long) _buffer->_pointer - sizeof(T);
             }
 
             public bool MoveNext()
@@ -70,7 +70,7 @@ namespace BurstBuffers
             public void Reset()
             {
                 _currentIndex = -1;
-                _currentItem = (long) _buffer->_pointer;
+                _currentItem = (long) _buffer->_pointer - sizeof(T);
             }
             
             public RefEnumerator GetEnumerator() => this;

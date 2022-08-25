@@ -11,7 +11,7 @@ namespace BurstBuffers
         /// <summary>
         /// Raw pointer to the native data allocation
         /// </summary>
-        protected T* Data;
+        protected internal T* Data;
 
         /// <summary>
         /// Checks if the underlying pointer is valid, and if the native data is allocated.
@@ -36,7 +36,7 @@ namespace BurstBuffers
         /// Ensures buffer is allocated and throws an exception if not.
         /// </summary>
         /// <exception cref="ObjectDisposedException">Buffer is not allocated.</exception>
-        protected void EnsureAllocatedAndThrow()
+        protected internal void EnsureAllocatedAndThrow()
         {
             if (!Allocated) throw new ObjectDisposedException($"{typeof(T)}");
         }

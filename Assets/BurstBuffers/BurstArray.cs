@@ -4,7 +4,6 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace BurstBuffers
 {
-    [StructLayout(LayoutKind.Sequential)]
     public unsafe partial struct BurstArray<T> : INativeResource where T : unmanaged
     {
         private T* _pointer;
@@ -51,11 +50,56 @@ namespace BurstBuffers
         {
             get
             {
-                if (!Allocated) throw new ObjectDisposedException($"NativeBuffer<{typeof(T)}>");
+                EnsureAllocatedAndThrow(this);
                 if (index < 0 || index >= Length)
                     throw new IndexOutOfRangeException($"index '{index}' is out of range for range [0..{Length}]");
                 return ref *(T*) ((long) _pointer + index * sizeof(T));
             }
+        }
+
+        /// <summary>
+        /// Copies one burst array into another. Can be of different types.
+        /// </summary>
+        /// <param name="destination">burst array to copy to</param>
+        /// <typeparam name="T2">type of destination array</typeparam>
+        public void CopyTo<T2>(BurstArray<T2> destination) where T2 : unmanaged
+        {
+            EnsureAllocatedAndThrow(this);
+            EnsureAllocatedAndThrow(destination);
+            long size = Math.Min(destination._nativeSize, _nativeSize);
+            UnsafeUtility.MemCpy(destination._pointer, _pointer, size);
+        }
+        
+        /// <summary>
+        /// Copies burst array into a managed array. Can be of different types.
+        /// </summary>
+        /// <param name="destination">managed array to copy to</param>
+        /// <typeparam name="T2">type of destination array</typeparam>
+        /// <exception cref="NullReferenceException">destination is null</exception>
+        public void CopyTo<T2>(T2[] destination) where T2 : unmanaged
+        {
+            EnsureAllocatedAndThrow(this);
+            if (destination == null) throw new NullReferenceException($"{nameof(destination)} array cannot be null");
+            long size = Math.Min(destination.Length * sizeof(T2), _nativeSize);
+            GCHandle handle = GCHandle.Alloc(destination, GCHandleType.Pinned);
+            UnsafeUtility.MemCpy((void*) handle.AddrOfPinnedObject(), _pointer, size);
+            handle.Free();
+        }
+
+        /// <summary>
+        /// Copies managed array data into burst array. Can be of different types.
+        /// </summary>
+        /// <param name="source">managed array to copy from</param>
+        /// <typeparam name="T2">type of source array</typeparam>
+        /// <exception cref="NullReferenceException">source is null</exception>
+        public void CopyFrom<T2>(T2[] source) where T2 : unmanaged
+        {
+            EnsureAllocatedAndThrow(this);
+            if (source == null) throw new NullReferenceException($"{nameof(source)} array cannot be null");
+            long size = Math.Min(source.Length * sizeof(T2), _nativeSize);
+            GCHandle handle = GCHandle.Alloc(source, GCHandleType.Pinned);
+            UnsafeUtility.MemCpy(_pointer, (void*) handle.AddrOfPinnedObject(), size);
+            handle.Free();
         }
 
         /// <summary>
@@ -81,6 +125,11 @@ namespace BurstBuffers
         {
             if (!typeof(T).IsAssignableFrom(typeof(INativeResource))) return;
             foreach (ref T item in GetRefEnumerator()) ((INativeResource)item).ReleaseResource();
+        }
+
+        private static void EnsureAllocatedAndThrow<T2>(BurstArray<T2> burstArray) where T2 : unmanaged
+        {
+            if (!burstArray.Allocated) throw new ObjectDisposedException($"NativeBuffer<{typeof(T)}>");
         }
     }
 }
