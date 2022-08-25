@@ -16,9 +16,8 @@ The `NativeBox<T>` base class exposes the data as an reference using `.GetUnsafe
 The `ref` is literally just a pointer converted to a ref, and can still produce undefined behaviour if the source data is disposed of. So be careful.
 
 ## Installation
-Go to the [latest release](https://github.com/rhedgeco/BurstBuffers/releases/latest).
+Go to the [latest release](releases/latest).
 
 Download and import the `.unitypackage` into your project.
 
-## License
-[MIT](LICENSE.md)
+## [License](LICENSE.md)
